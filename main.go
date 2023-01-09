@@ -9,7 +9,6 @@ import (
 )
 
 func main() {
-
 	r := mux.NewRouter()
 
 	r.HandleFunc("/hello", handlers.HelloHandler).Methods(http.MethodGet)
