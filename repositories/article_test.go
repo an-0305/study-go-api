@@ -73,3 +73,26 @@ func TestSelectArticleDetail(t *testing.T) {
 		})
 	}
 }
+
+func TestSelectArticleList(t *testing.T) {
+	dbUser := "docker"
+	dbPassword := "docker"
+	dbDatabase := "sampledb"
+	dbConn := fmt.Sprintf("%s:%s@tcp(127.0.0.1:3306)/%s?parseTime=true", dbUser, dbPassword, dbDatabase)
+
+	db, err := sql.Open("mysql", dbConn)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	expectedNum := 2
+	got , err := repositories.SelectArticleList(db, 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if num := len(got); num != expectedNum {
+		t.Errorf("want %d but got %d articles\n", expectedNum, num)
+	}
+}
