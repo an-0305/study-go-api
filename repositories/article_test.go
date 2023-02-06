@@ -20,7 +20,7 @@ func TestSelectArticleDetail(t *testing.T) {
 					Title: "firstPost",
 					Contents: "This is my first blog",
 					UserName: "saki",
-					NiceNum: 4,
+					NiceNum: 2,
 				},
 			},
 			{
@@ -62,8 +62,8 @@ func TestSelectArticleDetail(t *testing.T) {
 }
 
 func TestSelectArticleList(t *testing.T) {
-	expectedNum := 3
-	got , err := repositories.SelectArticleList(testDB, 1)
+	expectedNum := 2
+	got, err := repositories.SelectArticleList(testDB, 1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -80,7 +80,7 @@ func TestInsertArticle(t *testing.T) {
 		UserName: "saki",
 	}
 
-	expectedArticleNum := 4
+	expectedArticleNum := 3
 	newArticle, err := repositories.InsertArticle(testDB, article)
 	if err != nil {
 		t.Error(err)
@@ -92,8 +92,37 @@ func TestInsertArticle(t *testing.T) {
 	t.Cleanup(func() {
 		const sqlStr = `
 			delete from articles
-			where title = ? and contents = ? and username = ?
+			where article_id = ?
 		`
-		testDB.Exec(sqlStr, article.Title, article.Contents, article.UserName)
+		testDB.Exec(sqlStr, newArticle.ID)
+	})
+}
+
+func TestUpdateNiceNum(t *testing.T) {
+	articleID := 1
+	before, err := repositories.SelectArticleDetail(testDB, articleID)
+	if err != nil {
+		t.Fatal("fail to get before data")
+	}
+	err = repositories.UpdateNiceNum(testDB, articleID)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	after, err := repositories.SelectArticleDetail(testDB, articleID)
+	if err != nil {
+		t.Fatal("fail to get after data")
+	}
+
+	if after.NiceNum-before.NiceNum != 1 {
+		t.Error("fail to update nice num")
+	}
+
+	t.Cleanup(func() {
+		const sqlStr = `
+			update articles
+			set nice = ? where article_id = ?
+		`
+		testDB.Exec(sqlStr, before.NiceNum, articleID)
 	})
 }
