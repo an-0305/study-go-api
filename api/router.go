@@ -1,13 +1,19 @@
-package routers
+package api
 
 import (
+	"database/sql"
 	"net/http"
 
 	"github.com/an-0305/study-go-api/controllers"
+	"github.com/an-0305/study-go-api/services"
 	"github.com/gorilla/mux"
 )
 
-func NewRouter(aCon *controllers.ArticleController, cCon *controllers.CommentController) *mux.Router {
+func NewRouter(db *sql.DB) *mux.Router {
+	ser := services.NewMyAppService(db)
+	aCon := controllers.NewArticleController(ser)
+	cCon := controllers.NewCommentController(ser)
+
 	r := mux.NewRouter()
 
 	r.HandleFunc("/hello", aCon.HelloHandler).Methods(http.MethodGet)
