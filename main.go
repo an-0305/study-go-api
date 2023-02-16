@@ -8,9 +8,9 @@ import (
 	"os"
 
 	"github.com/an-0305/study-go-api/controllers"
+	"github.com/an-0305/study-go-api/routers"
 	"github.com/an-0305/study-go-api/services"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/gorilla/mux"
 )
 
 var (
@@ -28,15 +28,8 @@ func main() {
 	}
 	ser := services.NewMyAppService(db)
 	con := controllers.NewMyAppController(ser)
-	r := mux.NewRouter()
 
-	r.HandleFunc("/hello", con.HelloHandler).Methods(http.MethodGet)
-
-	r.HandleFunc("/article", con.PostArticleHandler).Methods(http.MethodPost)
-	r.HandleFunc("/article/list", con.ArticleListHandler).Methods(http.MethodGet)
-	r.HandleFunc("/article/{id:[0-9]+}", con.ArticleDetailHandler).Methods(http.MethodGet)
-	r.HandleFunc("/article/nice", con.PostNiceHandler).Methods(http.MethodPost)
-	r.HandleFunc("/comment", con.PostCommentHandler).Methods(http.MethodPost)
+	r := routers.NewRouter(con)
 
 	log.Println("server start at port 8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
