@@ -6,16 +6,16 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/an-0305/study-go-api/controllers/services"
 	"github.com/an-0305/study-go-api/models"
-	"github.com/an-0305/study-go-api/services"
 	"github.com/gorilla/mux"
 )
 
 type MyAppController struct {
-	service *services.MyAppService
+	service services.MyAppServicer
 }
 
-func NewMyAppController(s *services.MyAppService) *MyAppController {
+func NewMyAppController(s services.MyAppServicer) *MyAppController {
 	return &MyAppController{service: s}
 }
 
