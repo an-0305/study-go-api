@@ -20,16 +20,20 @@ func NewArticleController(s services.ArticleServicer) *ArticleController {
 	return &ArticleController{service: s}
 }
 
+// GET /hello のハンドラ
 func (c *ArticleController) HelloHandler(w http.ResponseWriter, req *http.Request) {
 	io.WriteString(w, "Hello, world!\n")
 }
 
+// POST /article のハンドラ
 func (c *ArticleController) PostArticleHandler(w http.ResponseWriter, req *http.Request) {
 	var reqArticle models.Article
 	if err := json.NewDecoder(req.Body).Decode(&reqArticle); err != nil {
 		err = apperrors.ReqBodyDecodeFailed.Wrap(err, "bad request body")
 		apperrors.ErrorHandler(w, req, err)
+		return
 	}
+
 	article, err := c.service.PostArticleService(reqArticle)
 	if err != nil {
 		apperrors.ErrorHandler(w, req, err)
@@ -57,7 +61,7 @@ func (c *ArticleController) ArticleListHandler(w http.ResponseWriter, req *http.
 
 	articleList, err := c.service.GetArticleListService(page)
 	if err != nil {
-		http.Error(w, "fail internal exec\n", http.StatusInternalServerError)
+		apperrors.ErrorHandler(w, req, err)
 		return
 	}
 
@@ -74,7 +78,7 @@ func (c *ArticleController) ArticleDetailHandler(w http.ResponseWriter, req *htt
 
 	article, err := c.service.GetArticleService(articleID)
 	if err != nil {
-		http.Error(w, "fail internal exec\n", http.StatusInternalServerError)
+		apperrors.ErrorHandler(w, req, err)
 		return
 	}
 
@@ -84,14 +88,15 @@ func (c *ArticleController) ArticleDetailHandler(w http.ResponseWriter, req *htt
 func (c *ArticleController) PostNiceHandler(w http.ResponseWriter, req *http.Request) {
 	var reqArticle models.Article
 	if err := json.NewDecoder(req.Body).Decode(&reqArticle); err != nil {
-		err = apperrors.ReqBodyDecodeFailed.Wrap(err, "bad request body")
 		apperrors.ErrorHandler(w, req, err)
+		http.Error(w, "fail to decode json\n", http.StatusBadRequest)
 	}
 
 	article, err := c.service.PostNiceService(reqArticle)
 	if err != nil {
-		http.Error(w, "fail internal exec\n", http.StatusInternalServerError)
+		apperrors.ErrorHandler(w, req, err)
+		return
 	}
+
 	json.NewEncoder(w).Encode(article)
 }
-
